@@ -1,0 +1,1 @@
+# ShutterIQ test suite

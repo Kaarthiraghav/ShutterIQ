@@ -55,6 +55,38 @@ In Stage 0, we establish the project structure, development environment, and the
 
 ---
 
+## Stage 1: Predictive Shoot Duration Model
+In Stage 1, we implemented the **Predictive Shoot Duration Engine** using machine learning to predict actual shoot durations from booking parameters.
+
+### 1. Modeling & Validation Results
+We split our 1,000 synthetic records into an 80/20 train/test split and evaluated both a baseline Linear Regression model and a challenger XGBoost Regressor:
+
+| Model | Train MAE | Train RMSE | Test MAE | Test RMSE |
+| :--- | :--- | :--- | :--- | :--- |
+| **Linear Regression (Baseline)** | 23.12 mins | 35.63 mins | 20.31 mins | 29.94 mins |
+| **XGBoost Regressor (Challenger)** | 11.83 mins | 19.52 mins | 16.16 mins | 31.31 mins |
+
+*Observations:* XGBoost improves mean absolute error (MAE) significantly from 20.31 minutes to 16.16 minutes on the test set, capturing non-linear relationships (logarithmic group size scaling and interaction terms) that Linear Regression struggles to approximate.
+
+### 2. Recommended Scheduling Buffer Time
+Rather than utilizing an arbitrary flat buffer (e.g. "always add 30 mins"), we estimate a heteroscedastic scheduling buffer based on the prediction uncertainty (standard deviation of residuals, $e = y - \hat{y}$) for each shoot type. Using a $1.645\times\sigma_{e, \text{type}}$ multiplier ensures a **95% protection threshold** against scheduling overruns:
+* **Wedding:** 140 minutes buffer (reflects high schedule volatility and guest counts)
+* **Event:** 50 minutes buffer
+* **Nature:** 25 minutes buffer
+* **Graduation:** 15 minutes buffer
+* **Portrait:** 10 minutes buffer
+
+### 3. Model Interpretability (SHAP Analysis)
+We computed SHAP values on the XGBoost model to inspect feature impacts:
+![SHAP Summary Plot](shutteriq/reports/duration_model_shap.png)
+
+*Key Insights:*
+* **Guest Count (`num_people`):** Highly positive impact. Larger groups represent the single largest driver of extended shoot durations.
+* **Shoot Type:** Wedding and event shoot types have strong positive base effects on duration, while portrait and graduation have negative effects relative to the reference category.
+* **Location Type (`location_type_outdoor`):** Outdoor shoots shift predictions upward due to ambient lighting adjustments and setup overhead.
+
+---
+
 ## Installation & Setup
 
 Ensure you have Python 3.11+ installed.

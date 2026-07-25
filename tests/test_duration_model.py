@@ -9,7 +9,7 @@ import os
 import pytest
 import pandas as pd
 import numpy as np
-from shutteriq.models.duration_model import (
+from models.duration_model import (
     predict_duration_with_buffer,
     _get_artifacts,
     train_models

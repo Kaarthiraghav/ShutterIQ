@@ -13,9 +13,9 @@ import shap
 
 # Define directory and file paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PATH = os.path.join(BASE_DIR, "shutteriq", "data", "bookings.csv")
-MODEL_PATH = os.path.join(BASE_DIR, "shutteriq", "models", "duration_model.pkl")
-REPORT_DIR = os.path.join(BASE_DIR, "shutteriq", "reports")
+DATA_PATH = os.path.join(BASE_DIR, "data", "bookings.csv")
+MODEL_PATH = os.path.join(BASE_DIR, "models", "duration_model.pkl")
+REPORT_DIR = os.path.join(BASE_DIR, "reports")
 REPORT_PATH = os.path.join(REPORT_DIR, "duration_model_shap.png")
 
 

@@ -20,8 +20,8 @@ import xgboost as xgb
 
 # Define directory and file paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DATA_PATH = os.path.join(BASE_DIR, "shutteriq", "data", "bookings.csv")
-MODEL_DIR = os.path.join(BASE_DIR, "shutteriq", "models")
+DATA_PATH = os.path.join(BASE_DIR, "data", "bookings.csv")
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODEL_DIR, "duration_model.pkl")
 
 
@@ -32,7 +32,7 @@ def load_data() -> pd.DataFrame:
     """
     if not os.path.exists(DATA_PATH):
         print(f"Dataset not found at {DATA_PATH}. Generating default synthetic bookings...")
-        from shutteriq.simulate.generate_bookings import generate_dataset
+        from simulate.generate_bookings import generate_dataset
         df = generate_dataset(num_records=1000, seed=42)
         os.makedirs(os.path.dirname(DATA_PATH), exist_ok=True)
         df.to_csv(DATA_PATH, index=False)

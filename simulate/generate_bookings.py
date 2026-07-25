@@ -423,7 +423,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate synthetic booking records for ShutterIQ.")
     parser.add_argument("--num-records", type=int, default=1000, help="Number of records to generate.")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
-    parser.add_argument("--output", type=str, default="shutteriq/data/bookings.csv", help="Path to write CSV file.")
+    parser.add_argument("--output", type=str, default="data/bookings.csv", help="Path to write CSV file.")
     
     args = parser.parse_args()
     

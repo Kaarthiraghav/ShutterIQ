@@ -8,7 +8,7 @@ including shape, typing, boundaries, pricing scaling, and price elasticity prope
 import pytest
 import pandas as pd
 import numpy as np
-from shutteriq.simulate.generate_bookings import (
+from simulate.generate_bookings import (
     generate_dataset,
     calculate_duration,
     calculate_price_and_acceptance

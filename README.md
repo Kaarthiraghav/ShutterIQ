@@ -27,20 +27,21 @@ ShutterIQ is structured around three primary data-driven engines:
 ## Project Structure
 
 ```text
-shutteriq/
-  ├── data/         # Generated synthetic booking datasets (ignored in git)
-  ├── simulate/     # Data simulation engine
-  │     ├── __init__.py
-  │     └── generate_bookings.py  # Synthetic booking generator with economic modeling
-  ├── models/       # ML models (predictors and elasticity estimators) - Placeholder
-  ├── api/          # FastAPI backend services - Placeholder
-  ├── app/          # Streamlit user interface - Placeholder
-  ├── tests/        # Pytest unit tests
-  │     ├── __init__.py
-  │     └── test_generate_bookings.py
-  ├── .gitignore
-  ├── requirements.txt
-  └── CHANGELOG.md
+├── data/         # Generated synthetic booking datasets (ignored in git)
+├── simulate/     # Data simulation engine
+│     ├── __init__.py
+│     └── generate_bookings.py  # Synthetic booking generator with economic modeling
+├── models/       # ML models (predictors and elasticity estimators)
+├── api/          # FastAPI backend services
+├── app/          # Streamlit user interface
+├── reports/      # SHAP explainability summaries and plots
+├── tests/        # Pytest unit tests
+│     ├── __init__.py
+│     ├── test_duration_model.py
+│     └── test_generate_bookings.py
+├── .gitignore
+├── requirements.txt
+└── CHANGELOG.md
 ```
 
 ---
@@ -78,7 +79,7 @@ Rather than utilizing an arbitrary flat buffer (e.g. "always add 30 mins"), we e
 
 ### 3. Model Interpretability (SHAP Analysis)
 We computed SHAP values on the XGBoost model to inspect feature impacts:
-![SHAP Summary Plot](shutteriq/reports/duration_model_shap.png)
+![SHAP Summary Plot](reports/duration_model_shap.png)
 
 *Key Insights:*
 * **Guest Count (`num_people`):** Highly positive impact. Larger groups represent the single largest driver of extended shoot durations.
@@ -113,7 +114,7 @@ pip install -r requirements.txt
 ### 3. Generate the Synthetic Dataset
 Run the data generator to create a baseline set of 1,000 bookings:
 ```bash
-python -m shutteriq.simulate.generate_bookings --num-records 1000 --output shutteriq/data/bookings.csv
+python -m simulate.generate_bookings --num-records 1000 --output data/bookings.csv
 ```
 
 ### 4. Run the Test Suite

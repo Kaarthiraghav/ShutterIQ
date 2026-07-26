@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-07-26
+### Added
+- Unified REST API built with FastAPI exposing the duration predictor, pricing recommender, and weather slot scorer.
+- Pre-caching strategy utilizing FastAPI lifespan events to load pickled model pipelines (`duration_model.pkl`, `pricing_model.pkl`) into memory on startup, eliminating I/O request latency.
+- Request/Response validation schemas defined using Pydantic in `api/schemas.py`.
+- Combined `/schedule-suggestion` endpoint to orchestrate duration prediction, dynamic pricing, and outdoor weather scoring suggestions.
+- API testing suite in `tests/test_api.py` covering successful request patterns, invalid input validation errors, and conditional slot skipping for indoor requests.
+- Corrected path calculation bug in `models/duration_model.py` which resolved directory paths outside the workspace.
+
 ## [0.4.0] - 2026-07-26
 ### Added
 - Golden hour and weather scheduling optimizer (`models/weather_optimizer.py`) for ranking outdoor booking slots.

@@ -175,6 +175,86 @@ python models/weather_optimizer.py --lat 6.9271 --lon 79.8612 --days 3
 
 ---
 
+## Stage 4: API Integration Layer
+In Stage 4, we expose the predictive models, pricing logic, and scheduling heurists behind a RESTful **FastAPI Integration Layer**.
+
+### 1. Model Preloading Strategy (FastAPI Lifespan)
+To prevent runtime disk I/O latency, the API implements a startup loading handler.
+* **Startup Lifespan Event:** At server startup, the app calls the caching loaders (`_get_artifacts()`) in the duration and pricing modules.
+* This pre-deserializes the XGBoost and Logistic Regression pipelines from `duration_model.pkl` and `pricing_model.pkl` and caches them in memory.
+* All subsequent requests run predictions instantaneously without disk access or retraining.
+
+### 2. Exposed REST Endpoints
+* **`GET /health`**
+  * Health check endpoint. Returns `{"status": "OK"}`.
+* **`POST /predict-duration`**
+  * Accepts booking features and returns predicted duration plus the 95% protection scheduling buffer.
+* **`POST /recommend-price`**
+  * Recommends a quote price designed to maximize expected dynamic revenue.
+* **`POST /best-slots`**
+  * Returns a ranked list of daytime hours slots scored by solar lighting and meteorological constraints.
+* **`POST /schedule-suggestion` (Combined Endpoint)**
+  * Unified scheduler: accepts booking request details and returns duration prediction, price recommendations, and optimal outdoor slots.
+  * **Indoor Optimization:** If `location_type` is `"indoor"`, weather forecast fetches are skipped entirely, and `best_slots` returns `[]`.
+
+### 3. Local API Execution
+Start the local server using Uvicorn:
+```bash
+uvicorn api.main:app --reload --host 127.0.0.1 --port 8000
+```
+FastAPI auto-generates interactive Swagger UI documentation at: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+### 4. Combined Request/Response Example
+#### Request:
+`POST /schedule-suggestion`
+```json
+{
+  "shoot_type": "portrait",
+  "num_people": 2,
+  "location_type": "outdoor",
+  "lighting_setup": "natural_light",
+  "photographer_experience_years": 5,
+  "season": "regular_season",
+  "day_of_week": "Saturday",
+  "lead_time_days": 10,
+  "latitude": 6.9271,
+  "longitude": 79.8612,
+  "start_date": "2026-07-26",
+  "end_date": "2026-07-26",
+  "timezone": "Asia/Colombo"
+}
+```
+
+#### Response:
+```json
+{
+  "duration_prediction": {
+    "predicted_duration_minutes": 52.48,
+    "recommended_buffer_minutes": 10
+  },
+  "price_recommendation": {
+    "recommended_price": 205.0,
+    "expected_revenue": 142.12
+  },
+  "best_slots": [
+    {
+      "start_time": "2026-07-26T17:00:00+05:30",
+      "end_time": "2026-07-26T18:00:00+05:30",
+      "score": 0.4702,
+      "lighting_score": 0.767,
+      "cloud_score": 0.777,
+      "precip_score": 0.61,
+      "cloud_cover_percent": 30.0,
+      "precip_prob_percent": 39.0,
+      "temperature_c": 28.8,
+      "weather_available": true
+    }
+  ]
+}
+```
+
+---
+
 ## Installation & Setup
 
 Ensure you have Python 3.11+ installed.

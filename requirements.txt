@@ -1,3 +1,5 @@
+# ShutterIQ Project Dependencies
+# Stage 2: Dynamic Pricing Model uses standard scientific stack (scikit-learn, pandas, numpy)
 cloudpickle==3.1.2
 contourpy==1.3.3
 cycler==0.12.1

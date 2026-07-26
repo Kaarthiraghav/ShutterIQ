@@ -10,6 +10,7 @@ and displays ranked outdoor golden hour & weather-optimized booking slots.
 import streamlit as st
 import requests
 import pandas as pd
+import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import date, timedelta
@@ -394,8 +395,7 @@ if submit_button:
                                 **Demand Elasticity Analysis:**
                                 * Optimal rate maximizes expected revenue (Price × Booking Acceptance Probability).
                                 * Quoting a premium price increases revenue *if* accepted, but drops booking conversion rates.
-                                * **Model Recommendation:** The dynamically suggested price of **${price_rec['recommended_price']:.2f}** "
-                                achieves the peak statistical revenue of **${price_rec['expected_revenue']:.2f}**.
+                                * **Model Recommendation:** The dynamically suggested price of **\${price_rec['recommended_price']:.2f}** achieves the peak statistical revenue of **\${price_rec['expected_revenue']:.2f}**.
                                 """
                             )
                         
@@ -466,7 +466,7 @@ if submit_button:
                                         "Solar Score": f"{s['lighting_score']:.3f}",
                                         "Cloud Score": f"{s['cloud_score']:.3f}",
                                         "Precip Score": f"{s['precip_score']:.3f}",
-                                        "Temp (°C)": f"{s['temperature_c']:.1f}°C" if not np.isnan(s['temperature_c']) else "N/A"
+                                        "Temp (°C)": f"{s['temperature_c']:.1f}°C" if (isinstance(s['temperature_c'], (int, float)) and not np.isnan(s['temperature_c'])) else "N/A"
                                     })
                                 st.dataframe(pd.DataFrame(display_rows), hide_index=True)
 

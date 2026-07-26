@@ -255,6 +255,40 @@ FastAPI auto-generates interactive Swagger UI documentation at: [http://127.0.0.
 
 ---
 
+## Stage 5: Interactive Streamlit Demo App
+In Stage 5, we wrap the ShutterIQ optimization backend inside an interactive, polished **Streamlit Demo Application** serving as the portfolio's main frontend.
+
+### 1. Dashboard Architecture & Features
+* **Dynamic Connection Hub (Sidebar):**
+  * Allows developers and users to configure the API Gateway URL interactively (defaults to `http://127.0.0.1:8000`).
+  * Features a connection probe indicator that checks health via `GET /health` (displays a green "Connected" badge or a warning guiding the user if the server is offline).
+  * Includes an educational sidebar detailing the underlying XGBoost, Logistic Regression, and Astral calculations.
+* **Streamlined Core Input Form:**
+  * Uses grouped layout columns for Session Type, group size, experience years, setting (indoor/outdoor), and dates.
+* **Plotly Visualizations & Interpretability:**
+  * **XGBoost SHAP Factors Explanations:** Runs `shap.TreeExplainer` locally to extract exact feature attributions for the single query row. Renders a colored Plotly bar chart indicating which factors pushed the shoot duration up (red) or down (green) relative to the baseline.
+  * **Dynamic Price Elasticity curve:** Renders a scatter/line plot of the expected revenue curve ($p \times P(\text{Accept} \mid p)$) showing the optimized quote price point maximizing dynamic yield.
+  * **Weather-Scored Daylight Slots:** Renders a bar chart of composite daylight slot quality alongside a ranked results table.
+
+### 2. Streamlit Dashboard Preview Placeholder
+![ShutterIQ App Interface Placeholder](docs/streamlit_screenshot.png)
+
+### 3. Launching the App
+To run the full ShutterIQ suite, start both the backend API and the frontend dashboard in separate terminals:
+
+**Terminal 1: Start the API Backend**
+```bash
+.venv/bin/uvicorn api.main:app --port 8000
+```
+
+**Terminal 2: Start the Streamlit Dashboard**
+```bash
+.venv/bin/streamlit run app/streamlit_app.py
+```
+Open [http://localhost:8501](http://localhost:8501) in your browser.
+
+---
+
 ## Installation & Setup
 
 Ensure you have Python 3.11+ installed.

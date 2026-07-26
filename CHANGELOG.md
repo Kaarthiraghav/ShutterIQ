@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2026-07-26
+### Added
+- Interactive Streamlit dashboard UI in `app/streamlit_app.py` for entering booking details, querying optimization recommendations, and displaying insights.
+- Dynamic API health probe sidebar module checking server status on `GET /health` with friendly guidance on starting the backend if offline.
+- Plotly-powered interpretability charts: horizontal SHAP attribution bar charts explaining factors altering the duration prediction, and scatter/line curves depicting yield-optimized price thresholds.
+- Modular pure helpers in `app/helpers.py` separating display formatting (duration, weather badges) and SHAP feature mapping calculations.
+- Dedicated Streamlit app test suite in `tests/test_streamlit_app.py` validating duration conversions, emoji rating boundaries, and SHAP explanation keys.
+- Resolved Streamlit dependency conflicts in `requirements.txt` by downgrading `packaging` and `pillow` to compatible version lines.
+
 ## [0.5.0] - 2026-07-26
 ### Added
 - Unified REST API built with FastAPI exposing the duration predictor, pricing recommender, and weather slot scorer.

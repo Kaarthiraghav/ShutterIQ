@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2026-07-26
+### Added
+- Golden hour and weather scheduling optimizer (`models/weather_optimizer.py`) for ranking outdoor booking slots.
+- Astronomical sunrise, sunset, golden hour, and blue hour boundary calculations using `astral`.
+- Weather forecast API queries integration with the free, public Open-Meteo endpoint.
+- Composite scoring logic with a multiplicative rain veto to penalize precipitation and a photography diffused-light cloud cover curve (peaking at 30%).
+- Graceful API failure degradation path, automatically falling back to solar-only calculations when network requests fail or time out.
+- Optimization unit test suite (`tests/test_weather_optimizer.py`) including mock response testing, rain veto validation, and timeout fallback checks.
+- Comprehensive documentation added to the README and CHANGELOG.
+
 ## [0.3.0] - 2026-07-26
 ### Added
 - Dynamic pricing engine (`models/pricing_model.py`) using price elasticity of demand to recommend yield-maximizing quote rates.

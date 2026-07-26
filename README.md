@@ -134,6 +134,47 @@ Our model recovers the latent willingness-to-pay pattern with outstanding accura
 
 ---
 
+## Stage 3: Golden Hour & Weather Optimization
+In Stage 3, we implement the **Golden Hour & Weather Optimizer** for scheduling outdoor photography sessions.
+
+### 1. Objective and Architecture
+Outdoor shoots depend heavily on lighting and weather. This engine calculates daylight hours slots (7:00 AM to 6:00 PM) for a candidate date range and location, ranking them to find the optimal slots. It combines:
+* **Astronomical Calculations (via `astral`):** Timezone-aware morning/evening golden hour and blue hour boundaries.
+* **Meteorological Forecasts (via Open-Meteo API):** Live, hourly forecasts for cloud cover, precipitation probability, and temperature.
+
+### 2. Composite Scoring Algorithm (Option A)
+Each hourly slot's midpoint is scored on a $[0, 1]$ scale using the following components:
+* **Solar Lighting Score ($S_{\text{light}}$):**
+  * Midpoint falls inside a golden hour window = $1.0$.
+  * Midpoint falls inside a blue hour window = $0.8$.
+  * Outside windows, score decays exponentially: $S_{\text{light}} = \max(1.0 \times e^{-d_{\text{gold}}/120}, 0.8 \times e^{-d_{\text{blue}}/120})$, where $d$ is distance in minutes.
+* **Cloud Cover Score ($S_{\text{cloud}}$):**
+  * Peak score ($1.0$) is achieved at $30\%$ cloud cover (ideal diffused natural lighting).
+  * Direct harsh sunlight ($0\%$ cloud cover) drops the score to $0.6$.
+  * Overcast gloom ($100\%$ cloud cover) drops the score to $0.4$.
+* **Precipitation Veto Score ($S_{\text{precip}}$):**
+  * Calculated as $S_{\text{precip}} = 1.0 - (\text{precipitation\_probability} / 100)$.
+  * This acts as a **multiplicative veto**: a $100\%$ chance of rain yields $S_{\text{precip}} = 0.0$, driving the overall slot score to $0.0$.
+
+The composite slot score is:
+$$\text{Score} = (0.6 \times S_{\text{light}} + 0.4 \times S_{\text{cloud}}) \times S_{\text{precip}}$$
+
+### 3. Graceful Degradation & Fallbacks
+If the Open-Meteo API is unreachable, times out, or returns HTTP errors:
+* The engine logs a warning to stderr.
+* The algorithm degrades to **golden-hour-only scoring** by setting $S_{\text{cloud}} = 1.0$, $S_{\text{precip}} = 1.0$, and reporting weather metrics as `NaN`.
+* The final slot score simplifies to:
+$$\text{Score} = S_{\text{light}}$$
+* This guarantees that scheduling recommendations are still generated based on astronomical solar positions.
+
+### 4. Direct Invocation CLI
+You can run the optimizer from the command line:
+```bash
+python models/weather_optimizer.py --lat 6.9271 --lon 79.8612 --days 3
+```
+
+---
+
 ## Installation & Setup
 
 Ensure you have Python 3.11+ installed.

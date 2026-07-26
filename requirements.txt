@@ -28,3 +28,5 @@ slicer==0.0.8
 threadpoolctl==3.6.0
 tqdm==4.69.1
 xgboost==3.3.0
+astral==3.2
+requests==2.32.3

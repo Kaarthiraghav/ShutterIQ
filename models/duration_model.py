@@ -19,7 +19,7 @@ from sklearn.metrics import mean_absolute_error, root_mean_squared_error
 import xgboost as xgb
 
 # Define directory and file paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, "data", "bookings.csv")
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODEL_DIR, "duration_model.pkl")

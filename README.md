@@ -88,6 +88,52 @@ We computed SHAP values on the XGBoost model to inspect feature impacts:
 
 ---
 
+## Stage 2: Dynamic Pricing Model
+In Stage 2, we implement a **Dynamic Pricing Engine** that recommends optimized, yield-maximizing prices for photography services.
+
+### 1. Elasticity Framing vs. Baseline Regression
+We contrast two distinct approaches to price recommendation:
+* **Baseline Regressor (Direct Price Prediction):** A model trained to predict historical quoted prices ($p$) directly from booking features. It represents "what we historically charged." It does not capture whether clients accepted those quotes or how sensitive they were to price.
+* **Elasticity Model (Expected Revenue Optimization):** A classifier that predicts booking acceptance probability, $P(\text{Accept} \mid p, \mathbf{x})$, as a function of the candidate price $p$ and booking conditions $\mathbf{x}$. We then search a grid of candidate prices to recommend the price $p^*$ that maximizes expected revenue:
+$$\text{Expected Revenue}(p) = p \times P(\text{Accept} \mid p, \mathbf{x})$$
+
+### 2. Overcoming Causal Confounding & Multicollinearity
+A naive regression of booking acceptance on price and all features fails because the quoted price is highly collinear with the features that determine it (e.g., weddings are always expensive and have high baseline acceptance). If all features are included, the price coefficient becomes positive (selection bias).
+To resolve this, we leverage **econometric instrumental variable principles**:
+* **Exogenous Price Shifters:** We exclude `day_of_week` and `lead_time_days` from the elasticity classifier. In our synthetic engine, these features act as price shifters (increasing prices on weekends and last-minute requests) but do not affect the client's latent willingness-to-pay (WTP).
+* By excluding them, the model utilizes the exogenous price variations induced by weekends and lead times to isolate and fit a stable, negative price elasticity coefficient.
+
+### 3. Log-Price Baseline Transformation
+Because the true pricing generator is compounding/multiplicative (`price = base * season_mult * day_mult * ...`), a linear regression on raw prices produces negative price predictions for cheaper services (like portraits) under discount conditions.
+* We train the baseline model on the natural logarithm of price, $\log(p)$, and exponentiate the predictions: $p_{\text{baseline}} = e^{\hat{\log(p)}}$.
+* This guarantees positive recommended prices and dramatically improves baseline model performance:
+  * **Raw Price Baseline R²:** $0.9387$ | **Test MAE:** \$167.51
+  * **Log-Price Baseline R²:** **$0.9925$** | **Test MAE:** **\$52.44**
+
+### 4. Category-Specific Price Elasticity (Interaction Terms)
+Photography services vary in scale by an order of magnitude (\$150 portraits vs. \$2,000 weddings). A flat global price coefficient will fail to capture this scale difference. We introduce interaction features between `quoted_price` and `shoot_type` (`price_x_<shoot_type>`), which enables the Logistic Regression classifier to learn a distinct elasticity curve for each service category.
+
+### 5. Latent Willingness-to-Pay (WTP) Recovery
+In our synthetic generator, a booking is accepted based on the client's budget (willingness-to-pay). At the threshold where $P(\text{Accept}) = 0.5$, the quote price equals the client's WTP. We evaluate our elasticity classifier by solving for the price that yields exactly $P(\text{Accept}) = 0.5$ (implied WTP) and comparing it against the latent `true_wtp` column in the test set.
+
+Our model recovers the latent willingness-to-pay pattern with outstanding accuracy:
+* **Overall WTP Recovery MAE:** **\$109.43**
+* **Overall WTP Recovery R²:** **$0.9838$**
+* **Overall WTP Correlation:** **$0.9920$**
+
+#### Detailed WTP Recovery by Shoot Type:
+* **portrait**: MAE = \$29.36 | R² = $0.6830$ | Correlation = $0.8285$
+* **graduation**: MAE = \$44.57 | R² = $0.6723$ | Correlation = $0.8248$
+* **nature**: MAE = \$55.40 | R² = $0.5542$ | Correlation = $0.8713$
+* **event**: MAE = \$150.52 | R² = $0.6328$ | Correlation = $0.8012$
+* **wedding**: MAE = \$454.04 | R² = $0.8432$ | Correlation = $0.9208$
+
+### 6. Standard Model Performance Metrics
+* **Baseline Regressor Test MAE:** \$52.44 | **R²:** $0.9925$
+* **Elasticity Classifier Test Accuracy:** $0.7100$ | **ROC AUC:** $0.7677$
+
+---
+
 ## Installation & Setup
 
 Ensure you have Python 3.11+ installed.

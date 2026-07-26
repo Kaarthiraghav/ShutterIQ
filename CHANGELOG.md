@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2026-07-26
+### Added
+- Dynamic pricing engine (`models/pricing_model.py`) using price elasticity of demand to recommend yield-maximizing quote rates.
+- Interaction features between price and shoot types to allow category-specific elasticity estimation.
+- Exogenous shifter control logic to eliminate multicollinearity and isolate price sensitivity coefficients.
+- Log-price regression baseline model, guaranteeing positive price outputs and significantly reducing baseline MAE.
+- Analytical willingness-to-pay (WTP) recovery calculation and ground-truth evaluation.
+- Pricing test suite (`tests/test_pricing_model.py`) validating model training, prediction boundaries, expected revenue optimization, and recovery accuracy.
+- Detailed README section outlining dynamic pricing framing, causal constraints, and validation results.
+
 ## [0.2.0] - 2026-07-25
 ### Added
 - XGBoost shoot duration model pipeline (`models/duration_model.py`)
